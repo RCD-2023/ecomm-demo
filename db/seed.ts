@@ -1,8 +1,10 @@
-import 'dotenv/config';
+// import 'dotenv/config';
 import { Pool } from 'pg';
 import { PrismaClient } from '@/lib/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import sampleData from './sample-data';
+
+
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL_UNPOOLED,

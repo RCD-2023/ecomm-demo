@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-
 import '@/assets/styles/globals.css';
 import { APP_NAME } from '@/lib/constants';
 import Header from '@/components/shared/header';
