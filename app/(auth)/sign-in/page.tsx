@@ -13,9 +13,9 @@ import {
 } from '@/components/ui/card';
 import { APP_NAME } from '@/lib/constants';
 
-const SignInPage = async (props: { searchParams: { callbackUrl?: string }}) => {
+const SignInPage = async (props: { searchParams: Promise<{ callbackUrl?: string }>}) => {
   const session = await auth();
-  const { callbackUrl } = props.searchParams;
+  const { callbackUrl } = await props.searchParams;
 
 
   if (session) {
