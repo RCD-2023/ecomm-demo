@@ -9,11 +9,13 @@ import {
 } from '@/components/ui/sheet';
 import Link from 'next/link';
 import ModeToggle from './mode-toggle';
+import UserButton from './user-button';
 
 const Menu = () => {
     return (
       <>
         <div className='flex justify-end gap-3'>
+          {/* Regular menu */}
           <nav className='md:flex hidden w-full max-w-xs gap-1'>
             <ModeToggle />
             <Button asChild variant='ghost'>
@@ -22,13 +24,9 @@ const Menu = () => {
                 Cart
               </Link>
             </Button>
-            <Button asChild>
-              <Link href='/sign-in'>
-                <UserIcon />
-                Sign In
-              </Link>
-            </Button>
+            <UserButton/>
           </nav>
+          {/* Responsive menu */}
           <nav className='md:hidden'>
             <Sheet>
               <SheetTrigger className='align-middle'>
@@ -43,12 +41,7 @@ const Menu = () => {
                     Cart
                   </Link>
                 </Button>
-                <Button asChild>
-                  <Link href='/sign-in'>
-                    <UserIcon />
-                    Sign In
-                  </Link>
-                </Button>
+                <UserButton/>
                 <SheetDescription></SheetDescription>
               </SheetContent>
             </Sheet>

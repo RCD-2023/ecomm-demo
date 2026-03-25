@@ -1,10 +1,11 @@
 import { getProductBySlug } from "@/lib/actions/product.actions";
 import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
 import ProductPrice from "@/components/shared/product/product-price";
 import ProductImages from "@/components/shared/product/produc-images";
+import AddToCart from "@/components/shared/product/add-to-cart";
 
 
 type Props = {
@@ -13,8 +14,16 @@ type Props = {
 
 const  ProductDetailsPage = async({ params }: Props) => {
     const { slug } = await params;
-    const product = await getProductBySlug(slug)
-    if (!product) notFound();
+  const product = await getProductBySlug(slug)
+  if (!product) notFound();
+   const item = {
+     productId: product.id,
+     name: product.name,
+     slug: product.slug,
+     price: product.price,
+     qty: 1,
+     image: product.images![0],
+   };
     //
     return (
       <>
@@ -67,7 +76,9 @@ const  ProductDetailsPage = async({ params }: Props) => {
                   </div>
                   {product.stock > 0 && (
                     <div className=' flex-center'>
-                      <Button className='w-full'>Add to cart</Button>
+                      <AddToCart
+                        item={item}
+                      />
                     </div>
                   )}
                 </CardContent>

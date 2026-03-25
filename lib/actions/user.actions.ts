@@ -1,7 +1,11 @@
 'use server';
 
+import { signInFormSchema, signUpFormSchema } from '../validator';
 import { signIn, signOut } from '@/auth';
-import { signInFormSchema } from '../validator'; 
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
+import { hashSync } from 'bcrypt-ts-edge';
+import { prisma } from '@/db/prisma';
+import { formatError } from '../utils';
 
 // Sign in the user with credentials
 //helper function
@@ -16,7 +20,7 @@ function isNextRedirectError(error: unknown): error is { digest: string } {
 }
 export async function signInWithCredentials(
   prevState: unknown,
-  formData: FormData
+  formData: FormData,
 ) {
   try {
     const user = signInFormSchema.parse({
@@ -25,9 +29,8 @@ export async function signInWithCredentials(
     });
 
     await signIn('credentials', user);
-//This line is never reached on success
-      return { success: true, message: 'Signed in successfully' };
-      
+    //This line is never reached on success
+    return { success: true, message: 'Signed in successfully' };
   } catch (error: unknown) {
     if (isNextRedirectError(error)) {
       throw error;
@@ -40,4 +43,51 @@ export async function signInWithCredentials(
 // Sign the user out
 export async function signOutUser() {
   await signOut();
+}
+//Sign up user (zod)
+/**
+ * The logic
+ * receive form data, validate form data, save plain password temporarily
+*hash password, create user in database, sign user in automatically, return *success
+* if error happens:
+  if it is redirect-related:rethrow it else: return failure
+ * 
+ */
+export async function signUp(prevState: unknown, formData: FormData) {
+  try {
+    //Reads form data using zod validation
+    const user = signUpFormSchema.parse({
+      name: formData.get('name'),
+      email: formData.get('email'),
+      confirmPassword: formData.get('confirmPassword'),
+      password: formData.get('password'),
+    });
+//Hashes the password into the db
+    const plainPassword = user.password;// this is temporarly saved not in the db because should use later on autocomplete
+    user.password = hashSync(user.password, 10);
+
+    await prisma.user.create({
+      data: {
+        name: user.name,
+        email: user.email,
+        password: user.password,
+      },
+    });
+//Sign in the user automatically after creation
+    await signIn('credentials', {
+      email: user.email,
+      password: plainPassword,
+    });
+    return { success: true, message: 'User created successfully' };
+  } catch (error:unknown) {
+   
+    if (isRedirectError(error)) {
+      throw error;
+    }
+
+    return {
+      success: false,
+      message: formatError(error),
+    };
+  }
 }
