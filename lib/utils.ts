@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { ZodError } from 'zod';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,14 +17,13 @@ export function formatNumberWithDecimal(num: number): string {
   return decimal ? `${int}.${decimal.slice(0, 2).padEnd(2, '0')}` : `${int}.00`;
 }
 
-// Errors format
+// Format Errors
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formatError(error: any): string {
-  if (error.name === 'ZodError') {
-    // Handle Zod error
-    const fieldErrors = Object.keys(error.errors).map((field) => {
-      const message = error.errors[field].message;
-      return typeof message === 'string' ? message : JSON.stringify(message);
+  if (error instanceof ZodError) {
+    const fieldErrors = error.issues.map((issue) => {
+      const field = issue.path.join('.');
+      return `${field}: ${issue.message}`;
     });
 
     return fieldErrors.join('. ');
@@ -41,3 +41,14 @@ export function formatError(error: any): string {
       : JSON.stringify(error.message);
   }
 }
+
+// Round number to 2 decimal places
+export function round2  (value: number | string) {
+  if (typeof value === 'number') {
+    return Math.round((value + Number.EPSILON) * 100) / 100; // avoid rounding errors
+  } else if (typeof value === 'string') {
+    return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+  } else {
+    throw new Error('Value is not a number nor a string');
+  }
+};
