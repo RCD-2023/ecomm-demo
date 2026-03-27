@@ -5,7 +5,6 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { ShippingAddress } from "@/types";
 import { shippingAddressSchema } from "@/lib/validator";
-import { updateShippingAddress } from "@/lib/actions/user.actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import {z} from "zod";
