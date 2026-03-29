@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { ZodError } from 'zod';
 
+//Functie utilitara creata automat de shadcn la iitiere (npx shadcn-ui init)
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

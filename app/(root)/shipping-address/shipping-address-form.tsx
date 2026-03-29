@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { toast } from "sonner";
 import { ShippingAddress } from "@/types";
 import { shippingAddressSchema } from "@/lib/validator";
