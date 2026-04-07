@@ -17,7 +17,6 @@ export const metadata: Metadata = {
   description: APP_DESCRIPTION,
   metadataBase:new URL(SERVER_URL)
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{

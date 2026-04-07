@@ -6,7 +6,7 @@ import { hashSync } from 'bcrypt-ts-edge';
 import { prisma } from '@/db/prisma';
 import { formatError } from '../utils';
 import { ShippingAddress } from '@/types';
-import { getMyCart } from './cart.actions';
+// import { getMyCart } from './cart.actions';
 import {
   signInFormSchema,
   signUpFormSchema,
@@ -35,7 +35,6 @@ export async function signInWithCredentials(
       email: formData.get('email'),
       password: formData.get('password'),
     });
-
     await signIn('credentials', user);
     //This line is never reached on success
     return { success: true, message: 'Signed in successfully' };
@@ -43,20 +42,19 @@ export async function signInWithCredentials(
     if (isNextRedirectError(error)) {
       throw error;
     }
-
     return { success: false, message: 'Invalid email or password' };
   }
 }
 
-// Sign the user out
+// Sign the user out (functie helper si cu varianta de golire cart  )
 export async function signOutUser() {
   // get current users cart and delete it so it does not persist to next user
-  const currentCart = await getMyCart();
-  if (currentCart?.id) {
-    await prisma.cart.delete({ where: { id: currentCart.id } });
-  } else {
-    console.warn('No cart found for deletion.');
-  }
+  // const currentCart = await getMyCart();
+  // if (currentCart?.id) {
+  //   await prisma.cart.delete({ where: { id: currentCart.id } });
+  // } else {
+  //   console.warn('No cart found for deletion.');
+  // }
   await signOut();
 }
 
@@ -115,7 +113,7 @@ export async function getUserById(userId: string) {
   return user;
 }
 
-//// Update user's address
+// Update user's address
 export async function updateUserAddress(data: ShippingAddress) {
   try {
     const session = await auth();
@@ -164,3 +162,33 @@ export async function updateUserPaymentMethod(
     return { success: false, message: formatError(error) };
   }
 }
+
+// Update User Profile
+export async function updateProfile(user: { name: string; email: string }) {
+  try {
+    const session = await auth();
+    //check for user
+    const currentUser = await prisma.user.findFirst({
+      where: {
+        id: session?.user?.id,
+      },
+    });
+    if (!currentUser) throw new Error('User not found');
+    //update
+    await prisma.user.update({
+      where: {
+        id: currentUser.id,
+      },
+      data: {
+        name: user.name,
+      },
+    });
+    return {
+      success: true,
+      message: 'User updated successfully',
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+}
+

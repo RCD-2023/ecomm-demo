@@ -185,9 +185,6 @@ return {
       : 'removed from'
   } cart successfully`,
 };
-
-
-
   } catch (error) {
     return { success: false, message: formatError(error) };
   }

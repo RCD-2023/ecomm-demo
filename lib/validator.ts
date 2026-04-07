@@ -88,8 +88,8 @@ export const shippingAddressSchema = z.object({
   country: z.string().min(3, 'Country must be at least 3 characters'),
   lat: z.number().optional(),
   lng: z.number().optional(),
-}); 
-  
+});
+
 //Payment Schema
 export const paymentMethodSchema = z
   .object({
@@ -121,4 +121,18 @@ export const insertOrderItemSchema = z.object({
   name: z.string(),
   price: currency,
   qty: z.number(),
+});
+
+// Zod schema for paymentresult
+export const paymentResultSchema = z.object({
+  id: z.string(),
+  status: z.string(),
+  email_address: z.string(),
+  pricePaid: z.string(),
+});
+
+//Update profile zod Schema
+export const updateProfileSchema = z.object({
+  name: z.string().min(3, 'Name must be at least 3 characters'),
+  email: z.string().min(3, 'Email must be at least 3 characters'),
 });
