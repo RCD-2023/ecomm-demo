@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { createProduct, updateProduct } from '@/lib/actions/product.actions';
 import { productDefaultValues } from '@/lib/constants';
-import { insertProductSchema, updateProductSchema } from '@/lib/validator';
+import { insertProductSchema } from '@/lib/validator';
 import { Product } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import slugify from 'slugify';
@@ -21,11 +21,11 @@ import {
   useForm,
   Controller,
   SubmitHandler,
+  type Resolver,
 } from 'react-hook-form';
 import { z } from 'zod';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { UploadButton } from '@/lib/uploadthing';
@@ -42,13 +42,19 @@ const ProductForm = ({ type, productId, product }: Props) => {
   const router = useRouter();
 
   const form = useForm<z.infer<typeof insertProductSchema>>({
-    resolver:
-      type === 'Update'
-        ? zodResolver(updateProductSchema)
-        : zodResolver(insertProductSchema),
+    resolver: zodResolver(insertProductSchema) as Resolver<z.infer<typeof insertProductSchema>>,
     defaultValues:
       product && type === 'Update' ? product : productDefaultValues,
   });
+
+  //varianta alternativa
+// const form = useForm<z.infer<typeof insertProductSchema>>({
+//   resolver: zodResolver(insertProductSchema),
+//   defaultValues: product && type === 'Update' ? product : productDefaultValues,
+// });
+
+
+
 //On submit 
   const onSubmit: SubmitHandler<z.infer<typeof insertProductSchema>> = async (
   values

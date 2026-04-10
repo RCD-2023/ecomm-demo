@@ -80,7 +80,7 @@ const  ProductDetailsPage = async({ params }: Props) => {
                     <div className=' flex-center'>
                       <AddToCart
                         cart={cart}
-                        item={item}
+                        item={{ ...item, price: Number(item.price) }}
                       />
                     </div>
                   )}
