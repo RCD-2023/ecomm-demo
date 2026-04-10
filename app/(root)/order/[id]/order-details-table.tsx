@@ -23,15 +23,21 @@ import {
 import {
   approvePayPalOrder,
   createPayPalOrder,
+  deliverOrder,
+  updateOrderToPaidByCOD,
 } from '@/lib/actions/order.actions';
+import { useTransition } from 'react';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 const OrderDetailsTable = ({
   order,
   paypalClientId,
+  isAdmin,
 }: {
   order: Order;
   paypalClientId: string;
+  isAdmin: boolean;
 }) => {
   const {
     id,
@@ -67,8 +73,58 @@ const OrderDetailsTable = ({
   // Approves a PayPal order
   const handleApprovePayPalOrder = async (data: { orderID: string }) => {
     const res = await approvePayPalOrder(order.id, data);
-           toast(`${res.message}`)
+    toast(`${res.message}`);
   };
+  //Button to mark the order as paid
+  const MarkAsPaidButton = () => {
+    const [isPending, startTransition] = useTransition();
+    return (
+      <Button
+        type='button'
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await updateOrderToPaidByCOD(order.id);
+            if (res.success) {
+              toast.success(res.message);
+            } else {
+              toast.error(res.message);
+            }
+          })
+        }
+      >
+        {isPending ? 'processing... ' : 'Mark As Paid'}
+      </Button>
+    );
+  };
+
+  // Button To mark the order as delivered
+const MarkAsDeliveredButton = () => {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <Button
+      type='button'
+      disabled={isPending}
+      onClick={() =>
+        startTransition(async () => {
+          const res = await deliverOrder(order.id);
+          if (res.success) {
+            toast.success(res.message);
+          } else {
+            toast.error(res.message);
+          }
+        })
+      }
+    >
+      {isPending ? 'processing...' : 'Mark As Delivered'}
+    </Button>
+  );
+};
+
+
+
+
 
   //
   return (
@@ -182,11 +238,16 @@ const OrderDetailsTable = ({
                 </div>
               )}
             </CardContent>
+            {/* Cash on Delivery */}
+            {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' && (
+              <MarkAsPaidButton />
+            )}
+            {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
           </Card>
         </div>
       </div>
     </>
   );
-};;;
+};;;;
 
 export default OrderDetailsTable;
