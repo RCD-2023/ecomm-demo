@@ -9,7 +9,7 @@ import z from 'zod';
 
 
 
-//Get all latest products
+//Get all latest products and convert them
 export async function getLatestProducts() {
   const data = await prisma.product.findMany({
     take: LATEST_PRODUCTS_LIMIT,
@@ -23,6 +23,14 @@ export async function getProductBySlug(slug: string) {
   return await prisma.product.findFirst({
     where: { slug: slug },
   });
+}
+//Get single product by id
+export async function getProductById(productId: string) {
+  const data = await prisma.product.findFirst({
+    where: { id: productId },
+  });
+
+  return convertToPlainObject(data)
 }
 
 //Get all products (admin zone)

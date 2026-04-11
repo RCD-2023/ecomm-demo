@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { createProduct, updateProduct } from '@/lib/actions/product.actions';
 import { productDefaultValues } from '@/lib/constants';
-import { insertProductSchema } from '@/lib/validator';
+import { insertProductSchema, updateProductSchema } from '@/lib/validator';
 import { Product } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import slugify from 'slugify';
@@ -21,7 +21,6 @@ import {
   useForm,
   Controller,
   SubmitHandler,
-  type Resolver,
 } from 'react-hook-form';
 import { z } from 'zod';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +28,7 @@ import Image from 'next/image';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { UploadButton } from '@/lib/uploadthing';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type Props = {
   type: 'Create' | 'Update';
@@ -37,27 +37,60 @@ type Props = {
 };
 
 
-//
+
 const ProductForm = ({ type, productId, product }: Props) => {
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof insertProductSchema>>({
-    resolver: zodResolver(insertProductSchema) as Resolver<z.infer<typeof insertProductSchema>>,
+  //Varianta Chat-GPT
+  const form = useForm<
+    z.input<typeof insertProductSchema>,
+    unknown,
+    z.output<typeof insertProductSchema>
+  >({
+    resolver: zodResolver(insertProductSchema),
     defaultValues:
       product && type === 'Update' ? product : productDefaultValues,
   });
 
+
+  //Varianta altternativa Will Adams(tot cu eroare)
+  // let schemaToUse;
+  // if (type === 'Update') {
+  //   schemaToUse = updateProductSchema;
+  // } else {
+  //   schemaToUse = insertProductSchema;
+  // }
+  // const resolver =zodResolver(schemaToUse)
+  // const form = useForm<z.infer<typeof insertProductSchema>>({
+  //   resolver,
+  //   defaultValues:
+  //   product && type === 'Update' ? product : productDefaultValues,
+  // });
+
+  //Varianta originala Brad
+  // const form = useForm<z.infer<typeof insertProductSchema>>({
+  //   resolver:
+  //     type === 'Update'
+  //       ? zodResolver(updateProductSchema)
+  //       : zodResolver(insertProductSchema),
+  //   defaultValues: product && type === 'Update' ? product : productDefaultValues
+  // });
+  //varianta alternativa Claude
+  //   const form = useForm<z.infer<typeof insertProductSchema>>({
+  //     resolver: zodResolver(insertProductSchema) as Resolver<z.infer<typeof insertProductSchema>>,
+  //     defaultValues:
+  //       product && type === 'Update' ? product : productDefaultValues,
+  //   });
+
   //varianta alternativa
-// const form = useForm<z.infer<typeof insertProductSchema>>({
-//   resolver: zodResolver(insertProductSchema),
-//   defaultValues: product && type === 'Update' ? product : productDefaultValues,
-// });
+  // const form = useForm<z.infer<typeof insertProductSchema>>({
+  //   resolver: zodResolver(insertProductSchema),
+  //   defaultValues: product && type === 'Update' ? product : productDefaultValues,
+  // });
 
-
-
-//On submit 
+  //On submit
   const onSubmit: SubmitHandler<z.infer<typeof insertProductSchema>> = async (
-  values
+    values,
   ) => {
     //when create a new item
     if (type === 'Create') {
@@ -86,8 +119,9 @@ const ProductForm = ({ type, productId, product }: Props) => {
   };
   //
   const images = form.watch('images');
- 
-  
+  const isFeatured = form.watch('isFeatured');
+  const banner = form.watch('banner');
+
   //
   return (
     <form
@@ -204,7 +238,20 @@ const ProductForm = ({ type, productId, product }: Props) => {
               <Field>
                 <FieldLabel>Stock</FieldLabel>
                 <FieldContent>
-                  <Input {...field} placeholder='Enter product stock' />
+                  <Input
+                    type='number'
+                    value={
+                      typeof field.value === 'string' ||
+                      typeof field.value === 'number'
+                        ? field.value
+                        : ''
+                    }
+                    onChange={(e) => field.onChange(e.target.value)}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                    placeholder='Enter product stock'
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -257,7 +304,76 @@ const ProductForm = ({ type, productId, product }: Props) => {
           />
         </FieldGroup>
 
-        <Field className='upload-field'>{/* Is Featured */}</Field>
+        <FieldGroup className='upload-field'>
+          <Field>
+            <FieldLabel>Featured Product</FieldLabel>
+            <FieldContent>
+              <Card>
+                <CardContent className='mt-2 space-y-2'>
+                  <Controller
+                    control={form.control}
+                    name='isFeatured'
+                    render={({ field, fieldState }) => (
+                      <Field>
+                        <FieldContent className='flex flex-row w-full  justify-start gap-2'>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className=''
+                          />
+                          <FieldLabel>Is Featured?</FieldLabel>
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </FieldContent>
+                      </Field>
+                    )}
+                  />
+
+                  {isFeatured && banner && (
+                    <Image
+                      src={banner}
+                      alt='banner image'
+                      className='w-full rounded-sm object-cover object-center'
+                      width={1920}
+                      height={680}
+                    />
+                  )}
+
+                  {isFeatured && !banner && (
+                    <Controller
+                      control={form.control}
+                      name='banner'
+                      render={({ field, fieldState }) => (
+                        <Field>
+                          <FieldLabel>Banner</FieldLabel>
+                          <FieldContent>
+                            <UploadButton
+                              endpoint='imageUploader'
+                              onClientUploadComplete={(
+                                res: { ufsUrl: string }[],
+                              ) => {
+                                if (res?.[0]?.ufsUrl) {
+                                  field.onChange(res[0].ufsUrl);
+                                }
+                              }}
+                              onUploadError={(error: Error) => {
+                                toast.error(error.message);
+                              }}
+                            />
+                            {fieldState.invalid && (
+                              <FieldError errors={[fieldState.error]} />
+                            )}
+                          </FieldContent>
+                        </Field>
+                      )}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </FieldContent>
+          </Field>
+        </FieldGroup>
 
         {/* Description */}
         <Controller
@@ -292,6 +408,6 @@ const ProductForm = ({ type, productId, product }: Props) => {
       </FieldSet>
     </form>
   );
-};
+};;
 
 export default ProductForm;
