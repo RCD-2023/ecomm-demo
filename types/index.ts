@@ -6,15 +6,24 @@ import {
   insertOrderSchema,
   insertOrderItemSchema,
   paymentResultSchema,
+  insertReviewSchema,
 } from '@/lib/validator';
 
 import z from 'zod';
 
+//
 export type Product = z.infer<typeof insertProductSchema> & {
   id: string;
   createdAt: Date;
   rating: string;
   numReviews: number;
+};
+
+//
+export type Review = z.infer<typeof insertReviewSchema> & {
+  id: string;
+  createdAt: Date;
+  user?: { name: string };
 };
 
 export type Cart = z.infer<typeof insertCartSchema>;

@@ -5,11 +5,17 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'psh01v3u99.ufs.sh',
+        port: '/f/*',
+      },
+      {
+        protocol: 'https',
         hostname: 'utfs.io',
-        port: '',
+        pathname: '/f/*',
       },
     ],
   },
 };
 
 export default nextConfig;
+ 

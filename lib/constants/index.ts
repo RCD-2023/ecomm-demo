@@ -36,7 +36,6 @@ export const DEFAULT_PAYMENT_METHOD =
 
 export const PAGE_SIZE = Number(process.env.PAGE_SIZE) || 10; //aici putem sa punem 2 de exemplu ca sa vedem cum functioneaza butoanele.
 
-
 //add constants for product form default values
 export const productDefaultValues = {
   name: '',
@@ -51,4 +50,15 @@ export const productDefaultValues = {
   numReviews: '0',
   isFeatured: false,
   banner: null,
+};
+
+//
+export const USER_ROLES = process.env.USER_ROLES
+  ? process.env.USER_ROLES.split(', ')
+  : ['admin', 'user'];
+
+export const reviewFormDefaultValues = {
+  title: '',
+  comment: '',
+  rating: 0,
 };

@@ -351,10 +351,10 @@ const ProductForm = ({ type, productId, product }: Props) => {
                             <UploadButton
                               endpoint='imageUploader'
                               onClientUploadComplete={(
-                                res: { ufsUrl: string }[],
+                                res: { url: string }[],
                               ) => {
-                                if (res?.[0]?.ufsUrl) {
-                                  field.onChange(res[0].ufsUrl);
+                                if (res?.[0]?.url) {
+                                  field.onChange(res[0].url);
                                 }
                               }}
                               onUploadError={(error: Error) => {

@@ -42,7 +42,8 @@ const AdminDashboardPage = async () => {
           </CardHeader>
           <CardContent>
             <div className='text-2xl font-bold'>
-              {formatCurrency(summary.totalSales._sum.totalPrice ?? 0).toString()}
+              {/* {formatCurrency(summary.totalSales._sum.totalPrice ?? 0).toString()} da eroare!! */}
+              {formatCurrency(Number(summary.totalSales._sum.totalPrice ?? 0))}
             </div>
           </CardContent>
         </Card>
@@ -82,7 +83,7 @@ const AdminDashboardPage = async () => {
             <CardTitle>Overview</CardTitle>
           </CardHeader>
           <CardContent className='pl-2'>
-            <Charts data={{salesData:summary.salesData}}/>
+            <Charts data={{ salesData: summary.salesData }} />
           </CardContent>
         </Card>
         <Card className='col-span-3'>
