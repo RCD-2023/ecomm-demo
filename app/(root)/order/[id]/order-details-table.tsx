@@ -29,15 +29,21 @@ import {
 import { useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import StripePayment from './stripe-payment';
 
+
+
+//
 const OrderDetailsTable = ({
   order,
   paypalClientId,
   isAdmin,
+  stripeClientSecret,
 }: {
   order: Order;
   paypalClientId: string;
   isAdmin: boolean;
+  stripeClientSecret: string | null;
 }) => {
   const {
     id,
@@ -99,32 +105,28 @@ const OrderDetailsTable = ({
   };
 
   // Button To mark the order as delivered
-const MarkAsDeliveredButton = () => {
-  const [isPending, startTransition] = useTransition();
+  const MarkAsDeliveredButton = () => {
+    const [isPending, startTransition] = useTransition();
 
-  return (
-    <Button
-      type='button'
-      disabled={isPending}
-      onClick={() =>
-        startTransition(async () => {
-          const res = await deliverOrder(order.id);
-          if (res.success) {
-            toast.success(res.message);
-          } else {
-            toast.error(res.message);
-          }
-        })
-      }
-    >
-      {isPending ? 'processing...' : 'Mark As Delivered'}
-    </Button>
-  );
-};
-
-
-
-
+    return (
+      <Button
+        type='button'
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await deliverOrder(order.id);
+            if (res.success) {
+              toast.success(res.message);
+            } else {
+              toast.error(res.message);
+            }
+          })
+        }
+      >
+        {isPending ? 'processing...' : 'Mark As Delivered'}
+      </Button>
+    );
+  };
 
   //
   return (
@@ -235,8 +237,20 @@ const MarkAsDeliveredButton = () => {
                       onApprove={handleApprovePayPalOrder}
                     />
                   </PayPalScriptProvider>
-                </div>
+                </div>  
               )}
+               {
+  /* Stripe Payment */
+     }
+{
+  !isPaid && paymentMethod === 'Stripe' && stripeClientSecret && (
+    <StripePayment
+      priceInCents={Number(order.totalPrice) * 100}
+      orderId={order.id}
+      clientSecret={stripeClientSecret}
+    />
+  )
+}
             </CardContent>
             {/* Cash on Delivery */}
             {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' && (
