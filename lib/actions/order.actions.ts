@@ -184,8 +184,9 @@ export async function approvePayPalOrder(
     return { success: false, message: formatError(err) };
   }
 }
+
 // Update Order to Paid in Database
-async function updateOrderToPaid({
+export async function updateOrderToPaid({
   orderId,
   paymentResult,
 }: {
