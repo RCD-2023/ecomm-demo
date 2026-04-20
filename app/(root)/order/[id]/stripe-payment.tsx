@@ -1,3 +1,4 @@
+'use clientId'
 import { Button } from '@/components/ui/button';
 import { SERVER_URL } from '@/lib/constants';
 import { formatCurrency } from '@/lib/utils';
